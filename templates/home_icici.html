@@ -1,0 +1,432 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Chat GPT</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="https://unpkg.com/linkifyjs"></script>
+    <script src="https://unpkg.com/linkifyjs/html.js"></script>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style_icici.css' %}">
+
+
+</head>
+<body>
+   <div class="container-fluid">
+   	<div class="row">
+   		<div class="col-md-3 sidebar">
+   			<div class="box">
+				<img src="{% static 'images/BankOfBaroda.jpg' %}" style="float:left; width:100%; height:13%;" class="link"/>
+				{% comment %} <img src="{% static 'images/mlai2.png' %}" style="float:right; width:30%; margin-right:4% background: #fff;"> {% endcomment %}
+				<hr style= "margin-top:100px;" >
+
+				
+   			</div>
+   		</div>
+   		<div  class="col-md-9">
+   			<div id="myDiv" class="chat_gpt text-center">
+   				<h1>ChatGPT</h1>
+   				<ul>
+   					<li>
+   						<h6>
+   							<i class="fa fa-sun-o" aria-hidden="true" style="color:#6A4742;"></i>
+   							<br>
+   							Examples
+   						</h6>
+						<div class="bg_light" style="background:#EDC9C6"><p  value="Benefits of Debit Card e-Mandate" id = "ex1" onClick='handleclick()'>Benefits of Debit Card e-Mandate</div>
+   						<div class="bg_light" style="background:#EDC9C6"><p value="How to Apply for a Credit Card?" id ="ex2" onClick='handleclick2()'>How to Apply for a Credit Card?</p></div>
+   						<div class="bg_light" style="background:#EDC9C6"><p value="bob World UPI : Do's and Dont's" id = "ex3" onClick='handleclick3()'>bob World UPI : Do's and Dont's</p></div>
+				</li>
+   					<li>
+   						<h6>
+   							<i class="fa fa-bolt" aria-hidden="true" style="color:#3E593C;"></i>
+   							<br>
+   							Capabilities
+   						</h6>
+   						<div class="bg_light" style="background:#D9DCCB"><p>Allows Users to receive Curated Website Information
+
+						</p></div>
+   						<div class="bg_light" style="background:#D9DCCB"><p>Remembers the last asked questions</p></div>
+   						<div class="bg_light" style="background:#D9DCCB"><p>Trained to Decline Inappropriate Questions</p></div>
+   					</li>
+   					<li>
+   						<h6>
+   							<i class="fa fa-exclamation-triangle" aria-hidden="true" style="color:#695934;"></i>
+   							<br>
+   							Limitations
+   						</h6>
+   						<div class="bg_light" style="background:#ECDDC0"><p>May occasionally generate incorrect information</p></div>
+   						<div class="bg_light" style="background:#ECDDC0"><p>May occasionally produce harmful instructions or biased content</p></div>
+   						<div class="bg_light" style="background:#ECDDC0"><p>Limited knowledge of Bank of Baroda Bank and events after Feb 2023</p></div>
+   					</li>
+   				</ul>
+				
+			</div>
+            <div class="mySq" id='mySq' style=" width: 100%; ">
+                <div class="chat_ans" id="chat_ans">
+                </div>
+            </div>
+			
+			<div class="msg_input">
+                <div class="stop_button_container">
+					<div id="error-message"></div>
+                </div>
+                <div class="input_and_image">
+                  <div id="myForm" class="bg_light">
+                    <input type="text" id="chat" value="" name="chat">
+                    <button type="submit" id="button" onclick="sendMessage()"><i class="fa fa-paper-plane" aria-hidden="false" style=""></i></button>
+                    <div class="my message">
+                      <span class="jumping-dots" id="load">
+                        <span class="dot-1"></span>
+                        <span class="dot-2"></span>
+                        <span class="dot-3"></span>
+                      </span>
+                    </div>
+                  </div>
+                  <img src="{% static 'images/mlai.png' %}" alt="AI bot" />
+                </div>
+              </div>
+   	        </div>
+
+<script>
+document.getElementById('mySq').style.display = 'none';
+//document.getElementById('stopButton').style.display = 'none';
+document.getElementById('load').style.display = 'none';
+console.log("Message");
+console.log('ws://' + window.location.host + '/wss/sc/')
+var ws = new WebSocket('ws://' + window.location.host + '/wss/sc/');
+
+//let stopGenerating = false; // Flag to control data processing
+
+//ws.onmessage = function(event) {
+//    if (!stopGenerating) {
+//        console.log("Message Received from Server:", event.data);
+//        
+        // getResult(event.data);
+//        var chunk = getChunk(event.data);
+//        displayChunk(chunk);
+//    }
+//    document.getElementById('load').style.display = 'none';
+
+//   document.getElementById('button').style.display = 'inline-block';
+   // document.getElementById('stopButton').style.display = 'none';
+//};
+
+//document.getElementById("stopButton").addEventListener("click", function() {
+//    stopGenerating = true; // Set the flag to stop data processing
+//    ws.send("stop generating");
+//    document.getElementById('stopButton').style.display = 'none';
+//    console.log("Data processing stopped.");
+//});
+
+ws.onopen = function () {
+    console.log("Web Socket Connection opened..");
+};
+
+ws.onmessage = function(event) {
+  //  console.log("Message Received from Server:", event.data);
+    console.log("Error Received from Server:", event.data);
+	var data = JSON.parse(event.data);
+	if (data.error) {
+        console.log("Error Received from Server:", data["error"]);
+		const errorDiv = document.getElementById('error-message');
+		errorMsg = data["error"]
+		errorDiv.innerText = errorMsg + " Try to Refresh The Page";
+		errorDiv.style.display = 'block';
+        // Handle the error on the frontend
+    } else {
+        console.log("Message Received from Server:", data["chunk"]);
+        // Handle the regular data on the frontend
+        var chunk = getChunk(data["chunk"]);
+        displayChunk(chunk);
+    }
+};
+
+ws.onerror = function(event) {
+    console.error("Error from Server:", event);
+};
+
+ws.onclose = function(event) {
+    console.log("Server connection closed:", event.data);
+};
+
+document.getElementById('load').style.display = 'none';
+function handleclick() {
+	var personal_loan = document.getElementById("ex1").innerHTML
+
+	document.getElementById("chat").value = personal_loan
+	}
+
+function handleclick2() {
+	var home_loan = document.getElementById("ex2").innerHTML
+
+	document.getElementById("chat").value = home_loan
+	}
+
+function handleclick3() {
+	var credit = document.getElementById("ex3").innerHTML
+
+	document.getElementById("chat").value = credit
+	}
+function getChunk(eventData) {
+	// Implement your logic to extract the chunk from the event data
+	// For example, if the event data is JSON-encoded, you can parse it and access the desired property
+	//var parsedData = JSON.parse(eventData);
+	var chunk = eventData;
+	console.log(chunk)
+	return chunk;
+  }
+// Detect scroll event
+// Detect scroll event
+
+var lastChatBox = null;
+var chatContainer = document.getElementById("chat_ans");
+function submitQuestion(inputMessage) {
+	var questionText = inputMessage;
+	//var resultText = getResult();
+	console.log("Question", questionText);
+	// Create a new chat box
+	var chatBox = document.createElement("div");
+	
+	chatBox.className = "ans_msg bg_light";
+	chatBox.innerHTML = `
+		  <div class="header_box ans_msg" id="header_box">
+			<img src="{% static 'images/BOB_small_logo.png' %}">
+			<div id="question">${questionText}</div>
+		  </div>
+		   <div class="ans_box" id="result">
+		  </div>
+	 `;
+	//chatContainer.appendChild(chatBox); 
+      // Get the reference to the last chat box
+  //var lastChatBox2 = document.querySelector(".chat_ans:last-child");
+
+  // Insert the new chat box after the last chat box
+	//if (lastChatBox2) {
+	//	lastChatBox2.parentNode.insertBefore(chatBox, lastChatBox2);
+	//} else {
+	var chatAnsDiv = document.getElementById("chat_ans");
+	chatAnsDiv.appendChild(chatBox);
+	  
+	lastChatBox = chatBox;
+      // Scroll to the latest chat box
+    //lastChatBox.scrollIntoView({ behavior: "smooth", block: "end" });
+	//const currentDiv = document.getElementById("myForm");
+    //document.body.insertBefore(chatBox, currentDiv);
+	// Clear the question input
+	clearQuestion();
+  }
+  
+
+function displayChunk(chunk) {
+	var urlFragments = [];
+	if (chunk !== "ALL_CHUNKS_SENT") {
+	  if (lastChatBox) {
+		var answerBox = lastChatBox.querySelector(".ans_box");
+  
+		if (answerBox) {
+		  // Get the existing content of the answer box
+		  var existingContent = answerBox.innerHTML;
+		  
+		  
+
+			
+		  // Append the new chunk to the existing content
+		 // var newContent = existingContent + chunk;
+		  answerBox.insertAdjacentHTML('beforeend', chunk);
+		  //lastChatBox.scrollIntoView({ behavior: "smooth", block: "end" });
+		  answerBox.scrollIntoView({ behavior: 'smooth' });	
+		//  answerBox.innerHTML = newContent;
+		} else {
+		  console.error("Answer box not found in last chat box");
+		}
+	  } else{
+		console.error("Last chat box not found");
+	  }
+	} else {
+		document.getElementById('load').style.display = 'none';
+       // document.getElementById('stopButton').style.display = 'none';
+		document.getElementById('button').style.display = 'inline-block';
+
+		if (lastChatBox) {
+		var answerBox = lastChatBox.querySelector(".ans_box");
+		var existingContent = answerBox.innerHTML;
+
+		// Regular expression to match URLs and image URLs
+		
+		const formattedLinkRegex = /\[([^[\]]*)\]\(([^)]*)\)/g;
+		const matches = existingContent.match(formattedLinkRegex);
+		console.log("Mached  " + matches)
+		
+		let result = existingContent;
+
+		if(matches) {
+			for (var i = 0; i < matches.length; i++) {
+			var match = matches[i];
+			console.log(match);
+			const regex = /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/;
+			const matche2 = match.match(regex);
+			if (matche2) {
+				const text = matche2[1];
+				const link = matche2[2];
+				console.log(link);
+				/*if (!link.endsWith('.png') && !link.endsWith('.jpg') && !link.endsWith('.jpeg') ) {
+					const replacement = `<a href="${link}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+					existingContent = existingContent.replace(match,replacement);
+				}
+
+				else if (link.endsWith('.png') && link.endsWith('.jpg') && link.endsWith('.jpeg') ) {
+					const replacement = `<img src="${link}" style="width: 250px; height: 150px; margin: 40px 52px 20px 20px;">`;
+					existingContent = existingContent.replace(match,replacement);
+				}*/
+			let replacement;
+
+            if (link.endsWith('.png') || link.endsWith('.jpg') || link.endsWith('.jpeg')) {
+                replacement = `<img src="${link}" style="width: 250px; height: 150px; margin: 40px 52px 20px 20px;">`;
+            } else {
+                replacement = `<a href="${link}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+            }
+            
+            existingContent = existingContent.replace(match, replacement);
+				
+
+				
+			}
+			answerBox.innerHTML = existingContent;
+		} 
+	}
+
+	
+	
+	// Find URLs that are not already in <a> tags
+	const urlPattern = /<a[^>]*>.*?<\/a>|<img[^>]*>.*?<\/img>|\b(https?:\/\/[^\s<>\)]+(?![^<>]*>|[^"]*?<\/a>|[^"]*?<\/img>))\b/g;
+	const unmatchedUrls = existingContent.match(urlPattern);
+	console.log("unmatched:  " , unmatchedUrls)
+	if (unmatchedUrls) {
+		for (const link of unmatchedUrls)  {
+			if (!link.startsWith('<a') && !link.startsWith('<img')) {
+				console.log("URL:", link)
+				
+			const hyperlink = `<a href="${link}" target="_blank" rel="noopener noreferrer">${link}</a>`;
+			existingContent = existingContent.replace(link, hyperlink);
+			}
+		}
+	
+		// Update the content of the answer box with the modified HTML
+		answerBox.innerHTML = existingContent;
+	}
+	
+
+
+      // existingContent = existingContent.replace(formattedLinkRegex, '<a href="$2">$1</a>');
+	  
+
+	// Find all occurrences of the pipe table using regex
+		const pipeTableRegex = /\|.*?\|/g;
+		//const pipeTableRegex = /\s*\|([\s\S]*?)\|/g;
+		const pipeTableMatches = existingContent.match(pipeTableRegex);
+		
+		if (pipeTableMatches) {
+			
+		  // Replace each pipe table with the dynamic HTML table
+		  //const pipeTable = existingContent.match(/\|([^]*?)\|/g);
+		  //console.log("All Table",pipeTable)
+		  
+		  const htmlTable = convertPipeTableToHTML(existingContent);
+			// Convert the pipe table to an HTML table
+			
+		   //const dynamicTableHTML = createDynamicTable(existingContent);
+		  
+			// Replace the current pipe table with the dynamic HTML table
+			//pipeTableContainer.innerHTML = `<p>${otherDetails}</p>${htmlTable}`;
+			// Update the 'result' div with the modified content
+			answerBox.innerHTML = htmlTable;
+			//answerBox.innerHTML = htmlTable;
+		}
+		
+			
+		  
+	}
+
+
+	}
+
+	}
+ 
+
+
+	function convertPipeTableToHTML(pipeTableStr) {
+
+		const tableRows = pipeTableStr.split('\n').filter(row => row.trim() !== '');
+		console.log(tableRows)
+		let p = '<p>'
+		let htmlTable = '<table>';
+		for (let i = 0; i < tableRows.length; i++) {
+		  const table1 =  tableRows[i].match(/\|(.*?)\|/);
+		  const extra =  tableRows[i].match(/\|*[-]\|/);
+		  if (extra) {
+				tableRows[i] = " "
+		  } 
+		  if (table1) {
+			  const columns = tableRows[i].split('|').map(column => column.trim());
+			  if (i === 0) {
+				// Header row
+				htmlTable += '<tr>';
+				for (const header of columns) {
+				  htmlTable += `<td>${header}</td>`;
+				}
+				htmlTable += '</tr>';
+			  } else {
+				// Data rows
+				htmlTable += '<tr>';
+				for (const data of columns) {
+				  htmlTable += `<td>${data}</td>`;
+				}
+				htmlTable += '</tr>';
+			  }
+			} else {
+			 p += tableRows[i];
+			 //console.log(data) 
+			 p += `</p>`	
+			}
+		}
+			htmlTable += '</table>';
+		
+		
+		return p + htmlTable;
+	}
+
+  
+  // Function to clear the question input field
+function clearQuestion() {
+	document.getElementById("chat").value = "";
+  }
+document.getElementById("chat").addEventListener("keypress", function (event) {
+    
+	// Check if the Enter key is pressed (Enter key has keyCode 13)
+	if (event.keyCode === 13) {
+      //stopGenerating = false;
+	  event.preventDefault(); // Prevent form submission (to avoid page refresh)
+	  sendMessage(); // Call the sendMessage function to handle submission
+	}
+  });  
+function sendMessage() {
+	//stopGenerating = false;
+    var inputMessage = document.getElementById("chat").value;
+	submitQuestion(inputMessage)
+	ws.send(inputMessage);
+
+	document.getElementById('myDiv').style.display = 'none';
+  //  document.getElementById('stopButton').style.display = 'inline-block';
+	document.getElementById('mySq').style.display = 'inline-block';
+	document.getElementById('button').style.display = 'none';
+	document.getElementById('load').style.display = 'inline-flex';
+}
+
+</script>
+</body>
+</html>
