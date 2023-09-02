@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,20 +26,21 @@ SECRET_KEY = 'django-insecure-&u6z*vpqugt72^92vnd&3$nue7@3kfk%h1e)cvj*ktl8_o&we=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',
-    'channels',
+    "daphne",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'django_extensions',
     'gpt1',
 ]
 
@@ -76,6 +78,17 @@ ASGI_APPLICATION = 'Bob_stream.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+           
+            'hosts': [("rediss://:vfBKJ3QxM6e0IWHFyXL8hWbWkwUyrmyLzAzCaD9nLIw=@bob1.redis.cache.windows.net:6380/0")],
+           
+        },
+    },
+}
+
 
 DATABASES = {
     'default': {
@@ -84,14 +97,6 @@ DATABASES = {
     }
 }
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [("bob1.redis.cache.windows.net",6380,"vfBKJ3QxM6e0IWHFyXL8hWbWkwUyrmyLzAzCaD9nLIw=","False")],
-        },
-    },
-}
 
 # CHANNEL_LAYERS = {
 #     'default': {
